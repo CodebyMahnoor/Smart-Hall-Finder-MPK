@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Login - SmartHallFinder</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+</head>
+<body class="bg-[#f3f6fb] min-h-screen flex items-center justify-center p-6">
+<div class="w-full max-w-md space-y-6">
+
+    <!-- Header -->
+    <div class="text-center space-y-2">
+        <h1 class="text-3xl font-bold font-serif text-slate-900">SmartHallFinder</h1>
+        <p class="text-slate-500 text-sm">Welcome back! Please enter your access credentials.</p>
+    </div>
+
+    <!-- Error Alert -->
+    <div th:if="${param.error}" class="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-xl text-xs font-medium text-center">
+        Invalid Hall Key. Please enter a valid Hall Key (e.g. SHF-10001).
+    </div>
+
+    <!-- Main Login Card -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6">
+        <div>
+            <h2 class="text-lg font-bold text-slate-900">Hall Manager Access</h2>
+            <p class="text-xs text-slate-500">Enter your Unique Hall Login Key</p>
+        </div>
+
+        <!-- Hall Owner Key Form -->
+        <form th:action="@{/hall/login}" method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Hall Access Key</label>
+                <input name="loginId" required type="text" placeholder="e.g. SHF-10001" class="w-full px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500 font-mono text-center uppercase tracking-wider"/>
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm py-2.5 rounded-xl transition-colors shadow-sm">
+                Login to Hall Dashboard
+            </button>
+        </form>
+
+        <div class="text-center">
+            <a href="/admin/login" class="text-xs font-semibold text-slate-600 hover:text-slate-900 underline-offset-2 hover:underline">
+                Admin login with username & password
+            </a>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a href="/" class="text-xs font-medium text-slate-500 hover:text-slate-800">← Back to Directory</a>
+    </div>
+
+</div>
+</body>
+</html>

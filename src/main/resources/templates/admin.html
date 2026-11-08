@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Super Admin - SmartHallFinder</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="bg-[#f3f6fb] min-h-screen text-slate-800 p-6 sm:p-10 lg:p-12">
+<div class="max-w-[1240px] mx-auto space-y-8">
+    <header class="flex justify-between items-start">
+        <div>
+            <h1 class="text-4xl font-bold text-slate-900 font-serif">Super Admin</h1>
+            <p class="mt-2 text-sm text-slate-500">Manage wedding hall listings.</p>
+        </div>
+        <div class="flex gap-3">
+        <a href="/" class="px-5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg shadow-sm hover:bg-slate-50">View Directory</a>
+        <a href="/logout" class="px-5 py-2 text-sm font-medium text-rose-600 bg-rose-50 border border-rose-100 rounded-lg shadow-sm hover:bg-rose-100">Logout</a>
+    </div>
+        <a href="/" class="px-5 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg shadow-sm">View Directory</a>
+    </header>
+
+    <!-- Add Venue Form -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Add a hall</h2>
+        <form th:action="@{/admin/venue/add}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Venue name</label>
+                    <input name="name" required type="text" placeholder="e.g. Royal Banquet" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Hall type</label>
+                    <select name="type" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option>Banquet</option>
+                        <option>Marquee</option>
+                        <option>Lawn</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Guest capacity from</label>
+                    <input name="capacityFrom" type="number" value="100" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Guests up to</label>
+                    <input name="capacityTo" type="number" value="1000" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Owner name</label>
+                    <input name="ownerName" required type="text" placeholder="e.g. Ali Khan" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700">Owner phone</label>
+                    <input name="ownerPhone" required type="text" placeholder="e.g. 03001234567" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Upload Hall Picture</label>
+                <input name="imageFile" type="file" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-lg cursor-pointer bg-white focus:outline-none"/>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Location</label>
+                <input name="location" required type="text" placeholder="e.g. Main Ring Road, Mirpurkhas" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+            </div>
+
+            <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition-colors shadow-sm">
+                Create venue
+            </button>
+        </form>
+    </section>
+
+    <!-- Venues Table with Modal Trigger -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        <h2 class="text-xl font-bold text-slate-900 mb-6">Venues</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                <tr class="text-xs font-semibold text-slate-400 uppercase border-b border-slate-100">
+                    <th class="py-3">ID</th>
+                    <th class="py-3">LOGIN ID</th>
+                    <th class="py-3">IMAGE</th>
+                    <th class="py-3">HALL</th>
+                    <th class="py-3">OWNER</th>
+                    <th class="py-3 text-center">PHONE</th>
+                    <th class="py-3 text-center">STATUS</th>
+                    <th class="py-3 text-center">ACTIONS</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-600">
+                <tr th:each="venue : ${venues}">
+                    <td class="py-4 font-semibold text-slate-900" th:text="${venue.id}">1</td>
+                    <td class="py-4">
+        <span class="px-2.5 py-1 text-xs font-mono font-bold text-indigo-700 bg-indigo-50 rounded-md border border-indigo-100" th:text="${venue.loginId}">SHF-12345</span>
+    </td>
+                    <td class="py-4">
+                        <img th:src="${venue.imageUrl}" th:alt="${venue.name}" class="w-12 h-12 object-cover rounded-lg border border-slate-200 bg-slate-50"/>
+                    </td>
+                    <td class="py-4">
+                        <a th:href="@{'/dashboard/' + ${venue.id}}" class="font-medium text-indigo-600 hover:underline" th:text="${venue.name}">Name</a>
+                    </td>
+                    
+                    <td class="py-4" th:text="${venue.ownerName}">Owner</td>
+                    <td class="py-4 text-center" th:text="${venue.ownerPhone}">Phone</td>
+                    <td class="py-4 text-center">
+                        <form th:action="@{'/admin/venue/toggle/' + ${venue.id}}" method="POST">
+                            <button type="submit" th:class="${venue.active} ? 'bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold' : 'bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-medium'">
+                                <span th:text="${venue.active} ? 'Active' : 'Inactive'">Inactive</span>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="py-4 text-center">
+                        <form th:action="@{'/admin/venue/delete/' + ${venue.id}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this venue?');">
+                            <button type="submit" class="inline-flex items-center px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold rounded-lg transition-colors">
+                                Delete
+                            </button>
+                            <button type="button" 
+                                th:onclick="openEditModal([[${venue.id}]], [[${venue.name}]], [[${venue.type}]], [[${venue.capacityFrom}]], [[${venue.capacityTo}]], [[${venue.ownerName}]], [[${venue.ownerPhone}]], [[${venue.location}]], [[${venue.imageUrl}]])" 
+                                class="inline-flex items-center px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 text-xs font-semibold rounded-lg transition-colors">
+                            Edit
+                        </button>
+                        </form>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Edit Venue Modal (Popup) Inside Admin Page -->
+<div id="editModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 w-full max-w-2xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+            <h3 class="text-xl font-bold text-slate-900 font-serif">Edit Venue Details</h3>
+            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+        </div>
+
+        <form id="editForm" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Venue name</label>
+                    <input id="editName" name="name" required type="text" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Hall type</label>
+                    <select id="editType" name="type" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="Banquet">Banquet</option>
+                        <option value="Marquee">Marquee</option>
+                        <option value="Lawn">Lawn</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Guest capacity from</label>
+                    <input id="editCapacityFrom" name="capacityFrom" type="number" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Guests up to</label>
+                    <input id="editCapacityTo" name="capacityTo" type="number" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Owner name</label>
+                    <input id="editOwnerName" name="ownerName" required type="text" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Owner phone</label>
+                    <input id="editOwnerPhone" name="ownerPhone" required type="text" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Location</label>
+                <input id="editLocation" name="location" required type="text" class="w-full px-4 py-2.5 text-sm rounded-lg border border-slate-200 focus:ring-indigo-500 focus:border-indigo-500"/>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-slate-700">Hall Picture</label>
+                <div class="flex items-center gap-4">
+                    <img id="editImagePreview" src="" class="w-16 h-16 object-cover rounded-xl border border-slate-200 bg-slate-50"/>
+                    <div class="flex-1">
+                        <input name="imageFile" type="file" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-slate-200 rounded-lg cursor-pointer bg-white"/>
+                        <p class="text-xs text-slate-400 mt-1">Image replace karni ho to nayi file upload karein (Optional)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm rounded-lg transition-colors shadow-sm">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditModal(id, name, type, capFrom, capTo, owner, phone, location, imgUrl) {
+        document.getElementById('editForm').action = '/admin/venue/update/' + id;
+        document.getElementById('editName').value = name;
+        document.getElementById('editType').value = type;
+        document.getElementById('editCapacityFrom').value = capFrom;
+        document.getElementById('editCapacityTo').value = capTo;
+        document.getElementById('editOwnerName').value = owner;
+        document.getElementById('editOwnerPhone').value = phone;
+        document.getElementById('editLocation').value = location;
+        document.getElementById('editImagePreview').src = imgUrl;
+
+        const modal = document.getElementById('editModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeEditModal() {
+        const modal = document.getElementById('editModal');
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+    }
+</script>
+</body>
+</html>

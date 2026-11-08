@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title th:text="${venue.name} + ' Dashboard'">Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+<body class="min-h-screen bg-[#f1f4f9] font-sans text-slate-700 flex flex-col justify-between">
+<header class="w-full bg-white border-b border-slate-100 py-3 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+        <span class="text-xs font-semibold uppercase tracking-wider text-slate-800" th:text="${venue.name}">VENUE</span>
+        <a href="/admin" class="text-xs text-indigo-600 font-medium">Switch to Super Admin</a>
+    </div>
+</header>
+<main class="max-w-7xl w-full mx-auto px-6 py-8 flex-1 flex flex-col gap-6">
+    <section class="flex flex-col lg:flex-row justify-between gap-6">
+        <div>
+            <h1 class="text-3xl font-serif font-bold text-slate-900" th:text="${venue.name}">JNJ BANQUET</h1>
+            <p class="text-sm text-slate-500 mt-1" th:text="${venue.location}">Location</p>
+        </div>
+        <div class="flex gap-3">
+            <div class="bg-white rounded-xl py-3 px-5 text-center shadow-sm border border-slate-100"><span class="text-2xl font-normal text-slate-800" th:text="${totalBookings}">0</span><p class="text-[11px] text-slate-400 mt-1">Total Bookings</p></div>
+            <div class="bg-white rounded-xl py-3 px-5 text-center shadow-sm border border-slate-100"><span class="text-2xl font-normal text-slate-800" th:text="${morningBookings}">0</span><p class="text-[11px] text-slate-400 mt-1">Morning</p></div>
+            <div class="bg-white rounded-xl py-3 px-5 text-center shadow-sm border border-slate-100"><span class="text-2xl font-normal text-slate-800" th:text="${eveningBookings}">0</span><p class="text-[11px] text-slate-400 mt-1">Evening</p></div>
+        </div>
+    </section>
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 class="text-sm font-semibold text-slate-900 mb-4">Add booking entry</h2>
+        <p th:if="${param.dateError}" class="mb-4 rounded-lg bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+            Booking date must be today or a future date.
+        </p>
+        <p th:if="${param.bookingError}" class="mb-4 rounded-lg bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700">
+            This hall is already booked for that date and shift. Choose another date or shift.
+        </p>
+        <form th:action="@{'/dashboard/' + ${venue.id} + '/booking/add'}" method="POST" class="grid grid-cols-1 sm:grid-cols-5 gap-4 items-end">
+            <div><label class="block text-xs text-slate-500 mb-1">Client name</label><input name="clientName" required type="text" class="w-full text-xs rounded-lg border-slate-200"/></div>
+            <div><label class="block text-xs text-slate-500 mb-1">Booking date</label><input name="bookingDate" required type="date" th:attr="min=${today}" class="w-full text-xs rounded-lg border-slate-200"/></div>
+            <div><label class="block text-xs text-slate-500 mb-1">Guest count</label><input name="guestCount" required type="number" value="450" class="w-full text-xs rounded-lg border-slate-200"/></div>
+            <div><label class="block text-xs text-slate-500 mb-1">Shift</label><select name="shift" class="w-full text-xs rounded-lg border-slate-200"><option>Morning</option><option>Evening</option></select></div>
+            <div><label class="block text-xs text-slate-500 mb-1">Status</label><select name="status" class="w-full text-xs rounded-lg border-slate-200"><option>Confirmed</option><option>Pending</option></select></div>
+            <div class="sm:col-span-5"><button type="submit" class="bg-indigo-600 text-white font-medium text-xs py-2.5 px-6 rounded-lg">Add entry</button></div>
+        </form>
+    </section>
+    <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <h2 class="text-sm font-semibold text-slate-900 mb-4">Booking Schedule</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead><tr class="text-slate-400 border-b border-slate-100 uppercase"><th class="pb-3">CLIENT NAME</th><th class="pb-3">BOOKING DATE</th><th class="pb-3">SHIFT</th><th class="pb-3">GUESTS</th><th class="pb-3">STATUS</th><th class="pb-3">ACTIONS</th></tr></thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                <tr th:each="booking : ${bookings}" data-booking-row>
+                    <td class="py-4"><input th:attr="form=|booking-update-${booking.id}|" name="clientName" required type="text" th:value="${booking.clientName}" readonly class="w-36 text-xs rounded-lg border-transparent bg-transparent px-0 read-only:focus:border-indigo-500"/></td>
+                    <td class="py-4">
+                        <span data-booking-date-display th:text="${booking.bookingDateDisplay}">11 Dec 2026</span>
+                        <input th:attr="form=|booking-update-${booking.id}|,min=${today}" name="bookingDate" required type="date" th:value="${booking.bookingDateInput}" hidden readonly class="w-36 text-xs rounded-lg border-slate-200 bg-white px-2"/>
+                    </td>
+                    <td class="py-4">
+                        <select th:attr="form=|booking-update-${booking.id}|" name="shift" disabled class="w-28 text-xs rounded-lg border-transparent bg-transparent px-0 disabled:opacity-100 disabled:text-slate-700">
+                            <option value="Morning" th:selected="${booking.shift == 'Morning'}">Morning</option>
+                            <option value="Evening" th:selected="${booking.shift == 'Evening'}">Evening</option>
+                        </select>
+                    </td>
+                    <td class="py-4"><input th:attr="form=|booking-update-${booking.id}|" name="guestCount" required type="number" min="1" th:value="${booking.guestCount}" readonly class="w-20 text-xs rounded-lg border-transparent bg-transparent px-0 read-only:focus:border-indigo-500"/></td>
+                    <td class="py-4">
+                        <select th:attr="form=|booking-update-${booking.id}|" name="status" disabled class="w-28 text-xs rounded-lg border-transparent bg-transparent px-0 disabled:opacity-100 disabled:text-slate-700">
+                            <option value="Confirmed" th:selected="${booking.status == 'Confirmed'}">Confirmed</option>
+                            <option value="Pending" th:selected="${booking.status == 'Pending'}">Pending</option>
+                        </select>
+                    </td>
+                    <td class="py-4 whitespace-nowrap">
+                        <form th:id="|booking-update-${booking.id}|" th:action="@{'/dashboard/' + ${venue.id} + '/booking/' + ${booking.id} + '/update'}" method="POST"></form>
+                        <button type="button" data-edit-booking class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg">Edit</button>
+                        <button th:attr="form=|booking-update-${booking.id}|" type="submit" data-save-booking hidden class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg">Save</button>
+                        <button type="button" data-cancel-booking hidden class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg">Cancel</button>
+                        <form th:action="@{'/dashboard/' + ${venue.id} + '/booking/' + ${booking.id} + '/delete'}" method="POST" class="inline" onsubmit="return confirm('Delete this booking?');">
+                            <button type="submit" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-lg">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script>
+    document.querySelectorAll("[data-booking-row]").forEach(function (row) {
+        const inputs = row.querySelectorAll("input");
+        const selects = row.querySelectorAll("select");
+        const editButton = row.querySelector("[data-edit-booking]");
+        const saveButton = row.querySelector("[data-save-booking]");
+        const cancelButton = row.querySelector("[data-cancel-booking]");
+        const dateDisplay = row.querySelector("[data-booking-date-display]");
+        const dateInput = row.querySelector('input[name="bookingDate"]');
+
+        function setEditing(editing) {
+            inputs.forEach(function (input) {
+                input.readOnly = !editing;
+                if (input === dateInput) {
+                    input.hidden = !editing;
+                    input.disabled = !editing;
+                    return;
+                }
+                input.classList.toggle("border-transparent", !editing);
+                input.classList.toggle("bg-transparent", !editing);
+                input.classList.toggle("px-0", !editing);
+                input.classList.toggle("border-slate-200", editing);
+                input.classList.toggle("bg-white", editing);
+                input.classList.toggle("px-2", editing);
+            });
+            selects.forEach(function (select) {
+                select.disabled = !editing;
+                select.classList.toggle("border-transparent", !editing);
+                select.classList.toggle("bg-transparent", !editing);
+                select.classList.toggle("px-0", !editing);
+                select.classList.toggle("border-slate-200", editing);
+                select.classList.toggle("bg-white", editing);
+                select.classList.toggle("px-2", editing);
+            });
+            dateDisplay.hidden = editing;
+            editButton.hidden = editing;
+            saveButton.hidden = !editing;
+            cancelButton.hidden = !editing;
+        }
+
+        editButton.addEventListener("click", function () {
+            setEditing(true);
+        });
+
+        cancelButton.addEventListener("click", function () {
+            inputs.forEach(function (input) {
+                input.value = input.defaultValue;
+            });
+            selects.forEach(function (select) {
+                Array.from(select.options).forEach(function (option) {
+                    option.selected = option.defaultSelected;
+                });
+            });
+            setEditing(false);
+        });
+    });
+</script>
+</body>
+</html>
